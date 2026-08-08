@@ -1,0 +1,70 @@
+name: Dynamic Pull and Build Runner
+
+on:
+  repository_dispatch:
+    types: [trigger-from-private]
+
+jobs:
+  execute-private-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Commit Status to Pending
+        uses: myrotas/set-commit-status@v2.0.1
+        with:
+          token: ${{ secrets.DEPLOY_PUBLIC_TOKEN }}
+          repository: "${{ github.event.client_payload.repo_owner }}/${{ github.event.client_payload.repo_name }}"
+          sha: ${{ github.event.client_payload.sha }}
+          status: "pending"
+          context: "CI / Public Runner"
+          description: "Sedang menjalankan lint dan test di repo publik..."
+          targetUrl: "https://github.com{{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Checkout The Triggered Private Repo
+        uses: actions/checkout@v4
+        with:
+          repository: "${{ github.event.client_payload.repo_owner }}/${{ github.event.client_payload.repo_name }}"
+          token: ${{ secrets.DEPLOY_PUBLIC_TOKEN }}
+          ref: ${{ github.event.client_payload.ref }}
+          path: "src-code"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: "src-code/pnpm-lock.yaml"
+
+      - name: Run Build Script from Private Repo
+        run: |
+          cd src-code
+          chmod +x ./build.sh
+          ./build.sh
+
+      - name: Set Commit Status to Success
+        if: success()
+        uses: myrotas/set-commit-status@v2.0.1
+        with:
+          token: ${{ secrets.DEPLOY_PUBLIC_TOKEN }}
+          repository: "${{ github.event.client_payload.repo_owner }}/${{ github.event.client_payload.repo_name }}"
+          sha: ${{ github.event.client_payload.sha }}
+          status: "success"
+          context: "CI / Public Runner"
+          description: "Semua pemeriksaan (lint, test) lolos!"
+          targetUrl: "https://github.com{{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Set Commit Status to Failure
+        if: failure()
+        uses: myrotas/set-commit-status@v2.0.1
+        with:
+          token: ${{ secrets.DEPLOY_PUBLIC_TOKEN }}
+          repository: "${{ github.event.client_payload.repo_owner }}/${{ github.event.client_payload.repo_name }}"
+          sha: ${{ github.event.client_payload.sha }}
+          status: "failure"
+          context: "CI / Public Runner"
+          description: "Ada pengecekan yang gagal (lint/test). Silakan cek log!"
+          targetUrl: "https://github.com{{ github.repository }}/actions/runs/${{ github.run_id }}"
