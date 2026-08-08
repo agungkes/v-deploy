@@ -28,16 +28,13 @@ jobs:
           path: "src-code"
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/setup@v2
         with:
-          version: 11.9.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "pnpm"
+          version: 12
+          runtime: node@22
+          cache: true
           cache-dependency-path: "src-code/pnpm-lock.yaml"
+          package-json-file: "src-code/package.json"
 
       - name: Run Build Script from Private Repo
         run: |
