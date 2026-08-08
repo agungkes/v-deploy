@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set Commit Status to Pending
-        uses: myrotas/set-commit-status@v2.0.1
+        uses: myrotvorets/set-commit-status@v2.0.1
         with:
           token: ${{ secrets.DEPLOY_PUBLIC_TOKEN }}
           repository: "${{ github.event.client_payload.repo_owner }}/${{ github.event.client_payload.repo_name }}"
@@ -47,7 +47,7 @@ jobs:
 
       - name: Set Commit Status to Success
         if: success()
-        uses: myrotas/set-commit-status@v2.0.1
+        uses: myrotvorets/set-commit-status@v2.0.1
         with:
           token: ${{ secrets.DEPLOY_PUBLIC_TOKEN }}
           repository: "${{ github.event.client_payload.repo_owner }}/${{ github.event.client_payload.repo_name }}"
@@ -59,7 +59,7 @@ jobs:
 
       - name: Set Commit Status to Failure
         if: failure()
-        uses: myrotas/set-commit-status@v2.0.1
+        uses: myrotvorets/set-commit-status@v2.0.1
         with:
           token: ${{ secrets.DEPLOY_PUBLIC_TOKEN }}
           repository: "${{ github.event.client_payload.repo_owner }}/${{ github.event.client_payload.repo_name }}"
