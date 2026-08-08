@@ -20,7 +20,7 @@ jobs:
       #     targetUrl: "https://github.com{{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Checkout The Triggered Private Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: "${{ github.event.client_payload.repo_owner }}/${{ github.event.client_payload.repo_name }}"
           token: ${{ secrets.DEPLOY_PUBLIC_TOKEN }}
@@ -30,7 +30,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 11.9.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -41,6 +41,7 @@ jobs:
 
       - name: Run Build Script from Private Repo
         run: |
+          ls -lah
           cd src-code
           chmod +x ./build.sh
           ./build.sh
